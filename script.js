@@ -10,7 +10,7 @@
 
 const $ = id => document.getElementById(id);
 
-const scenes = ['intro', 'scan', 'corridorPreview', 'board'];
+const scenes = ['intro', 'scan', 'corridorPreview', 'board', 'verdict'];
 
 let investigator = 'Investigator';
 let visited = new Set();
@@ -35,7 +35,7 @@ const files = [
 
         event: { title: 'AI WORKSHOP', when: '21 OCT · 10 AM', oldVenue: 'Seminar Hall', newVenue: 'Lab 3' },
 
-        outcomes: ['duplicate', 'outdated', 'updated'],
+         outcomes: ['updated', 'duplicate', 'outdated'],
         icon: '◈',
 
         tags: [
@@ -59,18 +59,18 @@ const files = [
 
         prompt: 'THE SCRAPER JUST FOUND THE WEDNESDAY REEL. WHAT SHOULD THE SYSTEM DO?',
 
-        choices: [
+            choices: [
+            'UPDATE THE EXISTING EVENT',
             'SAVE AS A NEW EVENT',
-            'SKIP IT',
-            'UPDATE THE EXISTING EVENT'
+            'SKIP IT'
         ],
 
-        correct: 2,
+        correct: 0,
 
         feedback: [
-            'Now there are two AI Workshops on the site. Students do not know which one is real.',
-            'The site keeps saying Seminar Hall. 40 students walk into an empty room.',
-            'Venue updated to Lab 3. Priya and her friends find the workshop. Case solved.'
+            'Venue updated to Lab 3. Priya and her friends find the workshop. Case solved.',
+            "Now there are two AI Workshops on the site. Students don't know which one is real.",
+            'The site keeps saying Seminar Hall. 40 students walk into an empty room.'
         ],
 
         reveal: {
@@ -243,7 +243,7 @@ const files = [
             { name: 'STRANGER', d: 0.68 }
         ],
 
-        thresholds: [0.75, 0.35, 0.55],
+        thresholds: [0.35, 0.55, 0.75],
         icon: '◎',
 
         tags: [
@@ -265,18 +265,18 @@ const files = [
 
         prompt: 'WHERE DO YOU SET THE THRESHOLD? ANYONE BELOW IT GETS IN.',
 
-        choices: [
-            '0.75 · LOOSE',
+            choices: [
             '0.35 · STRICT',
-            '0.55 · BALANCED'
+            '0.55 · BALANCED',
+            '0.75 · LOOSE'
         ],
 
-        correct: 2,
+        correct: 1,
 
         feedback: [
-            'Arjun gets in. So does the stranger.',
             'The stranger is stopped. So is Arjun, locked out of his own office.',
-            'Arjun walks in. The stranger is turned away. Case solved.'
+            'Arjun walks in. The stranger is turned away. Case solved.',
+            'Arjun gets in. So does the stranger.'
         ],
 
         reveal: {
@@ -301,6 +301,7 @@ const files = [
 
 
 function showScene(id) {
+    document.body.dataset.scene = id;
     // Display the requested section.
     scenes.forEach(s => $(s).classList.toggle('active', s === id));
 
@@ -341,7 +342,6 @@ function updateProgress() {
 
     
 
-    $('verdictCount').textContent = count;
 
     document.querySelectorAll('.evidence').forEach(el =>
         el.classList.toggle('visited', visited.has(Number(el.dataset.case)))
@@ -432,11 +432,23 @@ function startScan(name) {
 $('nameForm').addEventListener('submit', e => {
     e.preventDefault();
 
-    startScan($('investigatorName').value);
+    const name = $('investigatorName').value.trim();
+
+    // Same investigator coming back: keep progress, skip verification
+    if (visited.size && name.toLowerCase() === investigator.toLowerCase()) {
+        enterBoard();
+        toast(`WELCOME BACK, ${name.toUpperCase()}. YOUR PROGRESS IS SAVED.`);
+        return;
+    }
+
+    // New investigator: start a fresh case
+    visited.clear();
+    startScan(name);
 });
 
 // Skip introduction
 $('skipBtn').addEventListener('click', () => {
+        if (($('investigatorName').value.trim() || 'Anonymous').toLowerCase() !== investigator.toLowerCase()) visited.clear();
     investigator = $('investigatorName').value.trim() || 'Anonymous';
 
     enterBoard();
@@ -449,7 +461,11 @@ $('skipBtn').addEventListener('click', () => {
 $('proceedScan').addEventListener('click', enterBoard);
 
 // Return to homepage
-$('homeBtn').addEventListener('click', () => showScene('intro'));
+$('homeBtn').addEventListener('click', () => {
+    clearTimeout(scanTimer);
+    showScene('intro');
+    $('investigatorName').focus();
+});
 // Toggle ambient motion
 $('motionBtn').addEventListener('click', () => {
     let off = document.body.classList.toggle('motion-off');
@@ -816,63 +832,33 @@ $('caseModal').addEventListener('click', e => {
 /* =========================================================
    13. FINAL VERDICT
    ========================================================= */
-
+// The Final Verdict is a full page, not a popup.
 function openVerdict() {
-    $('verdictInvestigator').textContent = investigator;
+    // Use the visitor's name. If they skipped or left it generic, say "Investigator".
+    const name = investigator.trim();
+    const generic = !name || ['investigator', 'anonymous'].includes(name.toLowerCase());
 
-    $('verdictModal').hidden = false;
+    $('verdictInvestigator').textContent = generic ? 'Investigator' : name.charAt(0).toUpperCase() + name.slice(1);
 
-    document.body.style.overflow = 'hidden';
+    showScene('verdict');
 }
 
+// X on the verdict page goes back to Beyond the Case Files.
 function closeVerdict() {
-    $('verdictModal').hidden = true;
-
-    document.body.style.overflow = '';
+    showScene('board');
 }
-
-
-/* =========================================================
-   14. FINAL VERDICT BUTTON EVENTS
-   ========================================================= */
 
 $('verdictBtn').addEventListener('click', openVerdict);
 
-// Back to the corridor from Beyond the Case Files (progress is kept)
-$('returnCorridor').addEventListener('click', () => showScene('corridorPreview'));
-
 $('closeVerdict').addEventListener('click', closeVerdict);
 
-$('backToBoard').addEventListener('click', closeVerdict);
+$('returnCorridor').addEventListener('click', () => showScene('corridorPreview'));
 
-$('verdictModal').addEventListener('click', e => {
-    if (e.target === $('verdictModal')) {
-        closeVerdict();
-    }
-});
-
-
-/* =========================================================
-   15. DOWNLOAD INVESTIGATION REPORT
-   ========================================================= */
-
-$('downloadReport').addEventListener('click', () => {
-    let text = `BUREAU OF UNEXPLAINED APPLICATIONS\nCASE 001: THE MISSING RESUME\nInvestigator: ${investigator}\nSubject: Sana Tasneem\nEvidence examined: ${visited.size}/6\n\n${files.map((f, i) => `FILE ${i + 1}: ${f.title}\n${f.real}\n${f.solution}\n`).join('\n')}\nVERDICT: The resume was never missing. You were looking for my qualifications. I wanted to show you how I think.\n`;
-
-    const blob = new Blob([text], {
-        type: 'text/plain'
-    });
-
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-
-    a.href = url;
-    a.download = 'Case-001-Investigation-Report.txt';
-
-    a.click();
-
-    URL.revokeObjectURL(url);
+// Copy Sana's email instead of opening a mail app
+$('copyEmail').addEventListener('click', e => {
+    e.preventDefault();
+    navigator.clipboard.writeText('sanatasneem33@gmail.com');
+    toast('EMAIL COPIED · sanatasneem33@gmail.com');
 });
 
 
@@ -883,7 +869,6 @@ $('downloadReport').addEventListener('click', () => {
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         closeCase();
-        closeVerdict();
     }
 });
 
@@ -992,7 +977,7 @@ document.addEventListener('keydown', e => {
             void door.offsetWidth;                 // restart animation
             door.classList.add('shake');
 
-            toast(`ROOM ${pad(room)} IS SEALED. EXAMINE ${roomNames[nextRoom()]} FIRST.
+                toast(`ROOM ${pad(room)} IS SEALED. EXAMINE ${roomNames[nextRoom()]} FIRST.`);
             return;
         }
 
@@ -1106,3 +1091,4 @@ document.addEventListener('keydown', e => {
 
     render();
 })();
+

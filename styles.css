@@ -82,10 +82,18 @@ body {
   color: var(--cyan)
 }
 
-.brand-dot {
-  color: var(--amber)
+.home-hint {
+  margin-left: 14px;
+  padding: 6px 10px;
+  border: 1px solid #f2af70;
+  color: #f2af70;
+  font: 700 11px 'Space Mono', monospace;
+  letter-spacing: .1em
 }
 
+body[data-scene="intro"] .home-hint {
+  display: none
+}
 .topbar-right {
   display: flex;
   gap: 16px;
@@ -1664,6 +1672,89 @@ p {
 .verdict-note {
   font-size: 10px
 }
+/* FINAL VERDICT (full page) */
+.verdict-scene {
+      background: linear-gradient(rgba(3, 10, 17, .35), rgba(3, 10, 17, .55)), url("assets/bureau-background.png") center / cover no-repeat;
+  padding: 115px 4% 50px
+}
+
+.verdict-scene.active {
+  display: grid;
+  place-items: center
+}
+
+.verdict-panel {
+  position: relative;
+  width: min(760px, 100%);
+  padding: 40px;
+  border: 1px solid #6cbbc0;
+  background: rgba(8, 21, 34, .62);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 30px 120px #000
+}
+
+.verdict-panel .modal-close {
+  position: absolute;
+  right: 10px;
+  top: 5px
+}
+
+.verdict-panel h2 {
+  font: 700 clamp(30px, 5vw, 52px)/1.03 'Space Grotesk';
+    letter-spacing: -.05em;
+  margin-bottom: 18px;
+}
+
+.verdict-panel h2 em {
+  font-style: normal;
+  color: var(--amber)
+}
+
+.verdict-panel > p {
+  color: #e3edf0;
+  font-size: 17px;
+  line-height: 1.8
+}
+
+.verdict-panel blockquote {
+  font: 500 24px/1.5 'Space Grotesk';
+  color: var(--amber);
+  margin: 22px 0;
+  padding: 0;
+  border: 0
+}
+
+.verdict-panel .verdict-note {
+  font-size: 11px;
+  color: #c9dce2
+}
+
+.verdict-links {
+  display: flex;
+  gap: 10px;
+  margin: 22px 0 12px
+}
+
+.verdict-links a {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  color: #e8fbfa;
+  border: 1px solid #7ee5e0;
+  padding: 13px;
+  font: 600 15px 'DM Sans', sans-serif;
+  letter-spacing: .06em;
+  transition: border-color .2s, background .2s
+}
+
+.verdict-links a:hover {
+  border-color: var(--cyan);
+  background: #7ee5e014
+}
+
+#downloadResume {
+  text-decoration: none
+}
 
 .verdict-actions {
   display: flex;
@@ -1688,11 +1779,12 @@ p {
   bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  background: #18394a;
-  color: #e4f7f7;
-  padding: 12px 20px;
-  border: 1px solid #73c0c1;
-  font: 12px 'Space Mono';
+  background: #1e4a5c;
+  color: #ffffff;
+  padding: 14px 22px;
+  border: 1px solid #7ee5e0;
+  font: 500 15px 'DM Sans', sans-serif;
+  letter-spacing: .02em;
   display: none
 }
 

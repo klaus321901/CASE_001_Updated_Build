@@ -13,14 +13,14 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body data-scene="intro">
   <div class="noise" aria-hidden="true"></div>
   <div id="toast" role="status" aria-live="polite"></div>
 
   <header class="topbar">
-    <button class="brand" id="homeBtn" aria-label="Return to opening">
+    <button class="brand" id="homeBtn" title="Back to home" aria-label="Return to opening">
       <span class="brand-mark">B<span class="brand-dot">.</span></span>
-      <span>BUREAU OF<br>UNEXPLAINED APPLICATIONS</span>
+      <span>BUREAU OF<br>UNEXPLAINED APPLICATIONS</span><span class="home-hint">← HOME</span>
     </button>
     <div class="topbar-right">
       <span class="top-index">CASE ARCHIVE 001</span>
@@ -73,8 +73,7 @@
               <label for="investigatorName">How should the Bureau address you?</label>
               <form id="nameForm">
                 <div class="field">
-                  <span>//</span>
-                  <input id="investigatorName" name="investigator" type="text" autocomplete="off" spellcheck="false" maxlength="34" placeholder="Enter your name or alias…" required aria-label="Investigator name">
+                                    <input id="investigatorName" autofocus name="investigator" type="text" autocomplete="off" spellcheck="false" maxlength="34" placeholder="Enter your name" required aria-label="Investigator name">
                 </div>
                 <button class="primary-btn" type="submit">BEGIN INVESTIGATION <span>↗</span></button>
               </form>
@@ -378,26 +377,24 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="verdictModal" hidden>
-    <div class="verdict-modal" role="dialog" aria-modal="true" aria-labelledby="verdictTitle">
-      <button class="modal-close" id="closeVerdict" aria-label="Close final verdict">×</button>
-      <p class="eyebrow">CONFIDENTIAL // FINAL REPORT</p>
-      <div class="case-closed">CASE 001 // <span>REVIEW COMPLETE</span></div>
-      <h2 id="verdictTitle">THE RESUME WAS<br><em>NEVER MISSING.</em></h2>
-      <p>Investigator <strong id="verdictInvestigator">Guest</strong>, you were looking for a document. The evidence was right in front of you.</p>
-      <div class="verdict-count">
-        <div><strong id="verdictCount">0</strong><small>FILES EXAMINED</small></div>
-        <div><strong>06</strong><small>REAL PROJECTS</small></div>
-        <div><strong>01</strong><small>READY TO BUILD</small></div>
+    <!-- FINAL VERDICT (full page) -->
+    <section id="verdict" class="scene verdict-scene" aria-label="Final verdict">
+      <div class="verdict-panel">
+        <button class="modal-close" id="closeVerdict" type="button" aria-label="Back to Beyond the Case Files">×</button>
+        <p class="eyebrow">CONFIDENTIAL · FINAL REPORT</p>
+        <div class="case-closed">CASE 001 · <span>INVESTIGATION COMPLETE</span></div>
+        <h2 id="verdictTitle">THE RESUME WAS<br><em>NEVER MISSING</em></h2>
+        <p><strong id="verdictInvestigator">Investigator</strong>, the case is closed.</p>
+                <blockquote>You came looking for a resume. You found the things a resume will never tell.</blockquote>
+        <p class="verdict-note">Sana Tasneem · B.E. Computer Science, Muffakham Jah College of Engineering · June 2026</p>
+        <div class="verdict-links">
+          <a href="https://github.com/klaus321901" target="_blank" rel="noopener">GITHUB ↗</a>
+          <a href="https://www.linkedin.com/in/sana-tas/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+          <a href="#" id="copyEmail">EMAIL ↗</a>
+        </div>
+                <a id="downloadResume" class="primary-btn" href="assets/Sana_Tasneem_CV.pdf" target="_blank" rel="noopener">VIEW RESUME (PDF) <span>↗</span></a>
       </div>
-      <blockquote>“You were looking for my qualifications. I wanted to show you how I think.”</blockquote>
-      <p class="verdict-note">Sana Tasneem · Computer Science Graduate (2026) · Software Developer</p>
-      <div class="verdict-actions">
-        <button id="backToBoard">RETURN TO EVIDENCE ↖</button>
-        <button id="downloadReport" class="primary-btn">DOWNLOAD CASE REPORT ↓</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
   <script src="script.js"></script>
 </body>
