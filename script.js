@@ -24,8 +24,18 @@ let scanTimer = null;
 
 const files = [
     {
-        title: 'THE VANISHING EVENT',
+               title: 'THE VANISHING EVENT',
         real: 'Campus Connect',
+        context: 'FULL-STACK CAMPUS EVENTS PLATFORM · JULY 2026',
+        
+        sources: [
+            { label: 'MONDAY POST', text: 'AI Workshop · 21 Oct · Seminar Hall' },
+            { label: 'WEDNESDAY REEL', text: '"Quick update, we have moved to Lab 3!"' }
+        ],
+
+        event: { title: 'AI WORKSHOP', when: '21 OCT · 10 AM', oldVenue: 'Seminar Hall', newVenue: 'Lab 3' },
+
+        outcomes: ['duplicate', 'outdated', 'updated'],
         icon: '◈',
 
         tags: [
@@ -37,15 +47,38 @@ const files = [
             'Gemini'
         ],
 
-        question: 'An event was announced. Its details are scattered across a poster, a caption, and a Reel. How do you recover the missing information?',
+        question: '40 students showed up for a workshop. Nobody was there.',
 
-        problem: 'A campus club posts an announcement without a clean event record. Dates, locations and registration links might live in completely different formats.',
+        problem: 'On Thursday morning, Priya checked Campus Connect: AI Workshop, 21 Oct, Seminar Hall. She brought her friends. The hall was empty. The workshop was happening, just somewhere else. Somewhere between Instagram and the website, the update vanished.',
+
+        clues: [
+            'MONDAY POST · AI Workshop · 21 Oct · 10 AM · Seminar Hall',
+            'WEDNESDAY REEL · "Quick update, we have moved to Lab 3!"',
+            'CAMPUS CONNECT · still shows Seminar Hall'
+        ],
+
+        prompt: 'THE SCRAPER JUST FOUND THE WEDNESDAY REEL. WHAT SHOULD THE SYSTEM DO?',
 
         choices: [
-            'Read only the caption',
-            'Combine the poster, caption, QR code and Reel audio',
-            'Wait for someone to enter everything manually'
+            'SAVE AS A NEW EVENT',
+            'SKIP IT',
+            'UPDATE THE EXISTING EVENT'
         ],
+
+        correct: 2,
+
+        feedback: [
+            'Now there are two AI Workshops on the site. Students do not know which one is real.',
+            'The site keeps saying Seminar Hall. 40 students walk into an empty room.',
+            'Venue updated to Lab 3. Priya and her friends find the workshop. Case solved.'
+        ],
+
+        reveal: {
+            built: 'Campus Connect is a campus events platform built with FastAPI, PostgreSQL and JavaScript. Behind it, an ingestion pipeline uses Selenium to collect club posts and Reels from Instagram, OpenCV and PaddleOCR to read posters, pyzbar to decode QR codes, Whisper to transcribe Reel audio, and regex plus Gemini to turn it all into clean event records.',
+            wrong: 'No scraper gives you clean data. Captions were full of emojis and hashtags, dates came in every format, posters used decorative fonts, and every run brought back posts I had already saved. Clubs also kept posting updates, so the site either duplicated events or kept old details. Reel audio was its own problem: background music and noise made transcription unreliable, and I tried several approaches before it worked.',
+                        fixed: 'Before anything is saved, a cleaning step filters out irrelevant posts, removes duplicate links, preprocesses posters with OpenCV so OCR can read them, and converts dates and times into one standard format. Then each post is matched to existing events, so new details update the record instead of creating a duplicate. For audio, Whisper finally gave reliable transcripts, so updates spoken only in a Reel get picked up too. Gemini fills the gaps regex misses.',
+            learned: 'Collecting data is the easy part. Cleaning it and keeping it correct as it changes is the real work.'
+        },
 
         solution: 'Sana built a campus event platform and an Instagram ingestion pipeline that collects posts and Reels using Selenium; preprocesses posters with OpenCV and extracts text using PaddleOCR; decodes QR links; transcribes Reel audio using Whisper; and uses regex and Gemini to refine structured event information.',
 
@@ -53,8 +86,21 @@ const files = [
     },
 
     {
-        title: 'THE FABRICATED TRUTH',
+                title: 'THE FABRICATED TRUTH',
         real: 'Fake News Detection System',
+        context: 'FULL-STACK FACT-CHECKING APP · JULY 2025',
+        
+        chat: {
+            group: 'CLASS GROUP · 11:02 PM',
+            text: 'OFFICIAL: College closed tomorrow due to heavy rain. Forward to everyone.',
+            sources: [
+                { name: 'College website', found: 'No closure notice' },
+                { name: 'Local news', found: 'No report' },
+                { name: 'Weather update', found: 'Rain, no closure announced' }
+            ]
+        },
+
+        outcomes: ['shares', 'tone', 'search'],
         icon: '⌁',
 
         tags: [
@@ -65,15 +111,38 @@ const files = [
             'Pydantic'
         ],
 
-        question: 'Two statements sound equally convincing. How can we determine which is supported by evidence?',
+        question: 'Half the class is staying home tomorrow. Should they?',
 
-        problem: 'Language alone can make an inaccurate claim sound plausible. The investigator needs external evidence, not just a persuasive tone.',
+        problem: "At 11 PM, a message lands in Rahul's class group: \"OFFICIAL: College closed tomorrow due to heavy rain. Forward to everyone.\" Within an hour, it has been forwarded everywhere and half the class has decided to sleep in. Rahul has an exam in the morning. He needs to know if it is real.",
+
+        clues: [
+            'Forwarded 2,000+ times',
+            'Written in capital letters and sounds official',
+            'The college website and local news say nothing about a closure'
+        ],
+
+        prompt: 'HOW DO YOU CHECK IT?',
 
         choices: [
-            'Judge the writing style',
-            'Retrieve evidence and evaluate the claim',
-            'Assume the most repeated claim is true'
+            'TRUST IT · EVERYONE IS SHARING IT',
+            'TRUST IT · IT SOUNDS OFFICIAL',
+            'SEARCH FOR OUTSIDE SOURCES AND COMPARE'
         ],
+
+        correct: 2,
+
+        feedback: [
+            'Popular is not the same as true. Rahul skips his exam for nothing.',
+            'Anyone can type in capital letters. Rahul skips his exam for nothing.',
+            'No source backs it up. Likely FAKE. Rahul goes to his exam. Case solved.'
+        ],
+
+        reveal: {
+            built: 'I built a fact-checking app with Angular and FastAPI. You type in a claim, the backend searches the web for evidence using SerpAPI, then Gemini compares the claim with that evidence and returns five fields: verdict (REAL, FAKE or UNKNOWN), score, reasoning, evidence and warnings.',
+            wrong: 'My first goal was a model that could give the right verdict on its own. I tested classifiers like BERT and DeBERTa, but they only learned how fake news sounds. They could not check whether a claim was actually true, and they had no way to verify sources or handle news newer than their training data.',
+            fixed: 'So I switched to evidence first. The app searches for live sources, keeps only the useful snippets, and gives them to Gemini with a structured prompt. A parser turns the answer into the same five fields every time, and if anything fails or the evidence is unclear, it answers UNKNOWN instead of guessing.',
+            learned: 'Sounding true and being true are different problems. A good fact-checker needs evidence, and it needs to know when to say "I am not sure."'
+        },
 
         solution: 'Sana developed an Angular and FastAPI fact-checking application. FastAPI preprocesses a claim, retrieves search evidence via SerpAPI, and passes relevant context to Gemini for a structured verdict, reasoning, evidence and warnings.',
 
@@ -164,34 +233,66 @@ const files = [
         detail: 'Her documented work includes adapting the workflow to a Windows development environment. This exhibit explains the architecture; it does not pretend to run the original trained model in the browser.'
     },
 
-    {
-        title: 'THE IDENTITY PROTOCOL',
-        real: 'Face Recognition & Authentication System — ReadyPod Technologies Internship',
+        {
+        title: 'THE IDENTITY CHAMBER',
+        real: 'Face Recognition & Authentication System',
+        context: 'SOFTWARE ENGINEER INTERN · READYPOD TECHNOLOGIES · SEP–OCT 2025',
+
+        scan: [
+            { name: 'ARJUN', d: 0.49 },
+            { name: 'STRANGER', d: 0.68 }
+        ],
+
+        thresholds: [0.75, 0.35, 0.55],
         icon: '◎',
 
         tags: [
-            'ReadyPod Internship',
             'RetinaFace',
             'FaceNet',
             'DeepFace',
             'FastAPI'
         ],
 
-        question: 'A photo contains several faces. Which people are registered, and who should remain unknown?',
+               question: 'Arjun is back from the weekend with a new haircut.',
 
-        problem: 'A reliable demonstration must detect multiple faces, derive comparable features, and avoid treating a weak similarity as an authenticated identity.',
+        problem: 'It is early, the hallway lights are dim, and Arjun walks up to the restricted server room. Right behind him, a stranger in a company hoodie tries to slip in too. The scanner checks both faces against the employee records.',
+
+        clues: [
+            'ARJUN · match distance 0.49',
+            'STRANGER · closest match 0.68',
+            'Lower number = closer match'
+        ],
+
+        prompt: 'WHERE DO YOU SET THE THRESHOLD? ANYONE BELOW IT GETS IN.',
 
         choices: [
-            'Recognize every face unconditionally',
-            'Compare embeddings and apply a threshold',
-            'Compare only image filenames'
+            '0.75 · LOOSE',
+            '0.35 · STRICT',
+            '0.55 · BALANCED'
         ],
+
+        correct: 2,
+
+        feedback: [
+            'Arjun gets in. So does the stranger.',
+            'The stranger is stopped. So is Arjun, locked out of his own office.',
+            'Arjun walks in. The stranger is turned away. Case solved.'
+        ],
+
+        reveal: {
+            built: 'During my internship at ReadyPod Technologies, I built a face authentication system for restricted areas. RetinaFace finds each face, FaceNet turns it into an embedding, and cosine distance compares it with registered employees. FastAPI serves it, and it handles several faces in one photo.',
+            wrong: 'Finding the right threshold was hard. Too loose, and strangers were accepted as employees. Too strict, and real employees were rejected. People also looked different from day to day: low light, a new hairstyle, makeup, a whole new look.',
+            fixed: 'I tested different values until 0.55 balanced both errors. I also stored several reference photos for each employee, in different lighting and looks, so one bad photo day would not lock anyone out.',
+            learned: 'In authentication there is no perfect number. There is only a tradeoff you choose on purpose and keep testing.'
+        },
 
         solution: 'During her software engineering internship at ReadyPod Technologies, Sana built a FastAPI-based facial recognition application integrating RetinaFace detection, FaceNet embeddings, cosine-distance comparisons and threshold-based recognition decisions.',
 
         detail: 'The application supports multiple faces in uploaded images, employee reference photographs, bounding-box annotations and access-granted or access-denied results. This is her internship project.'
     }
+    
 ];
+
 
 
 /* =========================================================
@@ -200,8 +301,15 @@ const files = [
 
 
 function showScene(id) {
-    scenes.forEach(s => $('' + s).classList.toggle('active', s === id));
+    // Display the requested section.
+    scenes.forEach(s => $(s).classList.toggle('active', s === id));
 
+    // Remove temporary notifications when entering Beyond the Case Files.
+    if (id === 'board') {
+        $('toast').classList.remove('visible');
+    }
+
+    // Return to the top of the section.
     window.scrollTo({
         top: 0,
         behavior: 'instant'
@@ -231,13 +339,9 @@ setTimeout(() => t.classList.remove('visible'), 4000);
 function updateProgress() {
     const count = visited.size;
 
-    $('completionText').textContent = `${count} / 6 FILES EXAMINED`;
+    
 
     $('verdictCount').textContent = count;
-
-    $('boardMessage').textContent = count === 6
-        ? 'ALL EVIDENCE RECOVERED. THE BUREAU AWAITS YOUR VERDICT.'
-        : `${count} FILE${count === 1 ? '' : 'S'} REVIEWED. ${6 - count} REMAIN.`;
 
     document.querySelectorAll('.evidence').forEach(el =>
         el.classList.toggle('visited', visited.has(Number(el.dataset.case)))
@@ -253,7 +357,6 @@ function updateProgress() {
 function enterBoard() {
     clearTimeout(scanTimer);
 
-    $('assignedName').textContent = investigator.toUpperCase();
 
     showScene('corridorPreview');
 
@@ -375,7 +478,137 @@ $('motionBtn').addEventListener('click', () => {
 
 const mainRoomProjects = [5, 0, 1];
 
+/* Room visual: ID badges + distance meter (rooms with f.scan) */
+function renderScan(f) {
+    const box = $('modalVisual');
 
+    box.classList.add('has-scan');
+    box.innerHTML = `
+        <div class="scan-badges">
+            ${f.scan.map((p, n) => `
+                <div class="scan-badge" data-n="${n}">
+                    <span class="badge-face"></span>
+                    <strong>${p.name}</strong>
+                    <small>DISTANCE ${p.d.toFixed(2)}</small>
+                    <em class="badge-stamp">WAITING</em>
+                </div>`).join('')}
+        </div>
+        <div class="scan-meter">
+            <div class="meter-zone"></div>
+            <div class="meter-line"><span></span></div>
+            ${f.scan.map(p => `<i class="meter-dot" style="left:${p.d * 100}%"><b>${p.name}</b></i>`).join('')}
+        </div>
+        <div class="meter-scale"><span>0.0 · SAME FACE</span><span>1.0 · DIFFERENT FACE</span></div>`;
+}
+
+function updateScan(f, t) {
+    const box = $('modalVisual');
+    const line = box.querySelector('.meter-line');
+
+    box.querySelector('.meter-zone').style.width = t * 100 + '%';
+    line.style.left = t * 100 + '%';
+    line.classList.add('set');
+    line.querySelector('span').textContent = 'THRESHOLD ' + t.toFixed(2);
+
+    f.scan.forEach((p, n) => {
+        const badge = box.querySelector(`.scan-badge[data-n="${n}"]`);
+        const gotIn = p.d < t;
+
+        badge.dataset.result = gotIn ? 'in' : 'out';
+        badge.querySelector('.badge-stamp').textContent = gotIn ? 'ACCESS GRANTED' : 'DENIED';
+    });
+}
+/* Room visual: source cards + event card (rooms with f.event) */
+function eventCard(e, venue, extra = '') {
+    return `
+        <div class="event-card ${extra}">
+            <strong>${e.title}</strong>
+            <small>${e.when}</small>
+            <span class="event-venue">VENUE: ${venue}</span>
+            <em class="badge-stamp">LIVE ON SITE</em>
+        </div>`;
+}
+
+function renderEvent(f) {
+    const box = $('modalVisual');
+
+    box.classList.add('has-scan');
+    box.innerHTML = `
+        <div class="scan-badges">
+            ${f.sources.map(s => `
+                <div class="scan-badge source-card">
+                    <small>${s.label}</small>
+                    <span>${s.text}</span>
+                </div>`).join('')}
+        </div>
+        <p class="event-label">CAMPUS CONNECT · WHAT STUDENTS SEE</p>
+        <div class="event-row">${eventCard(f.event, f.event.oldVenue)}</div>`;
+}
+
+function updateEvent(f, idx) {
+    const e = f.event;
+    const row = $('modalVisual').querySelector('.event-row');
+    const outcome = f.outcomes[idx];
+
+    if (outcome === 'duplicate') {
+        row.innerHTML = eventCard(e, e.oldVenue, 'is-bad') + eventCard(e, e.newVenue, 'is-bad');
+        row.querySelectorAll('.badge-stamp').forEach(s => s.textContent = 'DUPLICATE');
+    } else if (outcome === 'outdated') {
+        row.innerHTML = eventCard(e, e.oldVenue, 'is-bad');
+        row.querySelector('.badge-stamp').textContent = 'OUTDATED · WRONG ROOM';
+    } else {
+        row.innerHTML = eventCard(e, `<s>${e.oldVenue}</s> ${e.newVenue}`, 'is-good');
+        row.querySelector('.badge-stamp').textContent = 'UPDATED';
+    }
+}
+/* Room visual: forwarded message + evidence check (rooms with f.chat) */
+function renderChat(f) {
+    const box = $('modalVisual');
+
+    box.classList.add('has-scan');
+    box.innerHTML = `
+        <div class="chat-bubble">
+            <small>${f.chat.group}</small>
+            <span class="chat-text">${f.chat.text}</span>
+            <em class="chat-fwd">↪ Forwarded many times</em>
+        </div>
+        <p class="event-label">FACT CHECK</p>
+        <div class="verdict-box">
+            <div class="evidence-rows"><p class="ev-note">Waiting for your decision...</p></div>
+            <em class="badge-stamp">VERDICT: PENDING</em>
+        </div>`;
+}
+
+function updateChat(f, idx) {
+    const box = $('modalVisual');
+    const bubble = box.querySelector('.chat-bubble');
+    const vbox = box.querySelector('.verdict-box');
+    const rows = box.querySelector('.evidence-rows');
+    const stamp = vbox.querySelector('.badge-stamp');
+    const outcome = f.outcomes[idx];
+
+    bubble.classList.remove('loud');
+    vbox.classList.remove('is-bad', 'is-good');
+    box.querySelector('.chat-fwd').textContent = '↪ Forwarded many times';
+
+    if (outcome === 'shares') {
+        box.querySelector('.chat-fwd').textContent = '↪ Forwarded 2,000+ times';
+        rows.innerHTML = '<p class="ev-note">2,000 shares. 0 sources.</p>';
+        stamp.textContent = 'NOT EVIDENCE';
+        vbox.classList.add('is-bad');
+    } else if (outcome === 'tone') {
+        bubble.classList.add('loud');
+        rows.innerHTML = '<p class="ev-note">Capital letters are not a source.</p>';
+        stamp.textContent = 'NOT EVIDENCE';
+        vbox.classList.add('is-bad');
+    } else {
+        rows.innerHTML = f.chat.sources.map(s =>
+            `<div class="ev-row"><b>${s.name}</b><span>${s.found}</span></div>`
+        ).join('');
+        stamp.textContent = 'VERDICT: LIKELY FAKE';
+        vbox.classList.add('is-good');
+    }
+}
 /* =========================================================
    10. OPEN PROJECT CASE
    ========================================================= */
@@ -385,12 +618,38 @@ function openCase(i) {
 
     const f = files[i];
 
+    // Use a different navigation label for the final investigation.
+    $('nextFile').textContent =
+        i === mainRoomProjects[2]
+            ? 'RETURN TO CORRIDOR →'
+            : 'NEXT FILE →';
+
     $('modalNumber').textContent =
-        `EVIDENCE FILE ${String(i + 1).padStart(2, '0')} / 06`;
+            $('modalNumber').textContent = '';
 
     $('modalTitle').textContent = f.title;
-    $('modalReal').textContent = f.real;
-    $('modalVisual').textContent = f.icon;
+       $('modalReal').textContent = f.real;
+
+    // Small second line under the project name (e.g. internship)
+    if (f.context) {
+        const c = document.createElement('small');
+        c.className = 'modal-context';
+        c.textContent = f.context;
+        $('modalReal').appendChild(c);
+    }
+
+    // Room visual: badges + meter for redesigned rooms, icon otherwise
+    $('modalVisual').classList.remove('has-scan');
+
+    if (f.scan) {
+        renderScan(f);
+        } else if (f.event) {
+        renderEvent(f);
+        } else if (f.chat) {
+        renderChat(f);
+    } else {
+        $('modalVisual').textContent = f.icon;
+    }
     $('modalQuestion').textContent = f.question;
     $('modalProblem').textContent = f.problem;
     $('modalSolution').textContent = f.solution;
@@ -405,15 +664,34 @@ function openCase(i) {
         })
     );
 
-    // Clear previous interaction
+       // Clear previous interaction
     $('modalInteraction').replaceChildren();
+
+    // Clues (only rooms that have them)
+    if (f.clues) {
+        const list = document.createElement('ul');
+        list.className = 'clue-list';
+
+        f.clues.forEach(c => {
+            const li = document.createElement('li');
+            li.textContent = c;
+            list.appendChild(li);
+        });
+
+        $('modalInteraction').appendChild(list);
+    }
 
     const instruction = document.createElement('div');
 
-    instruction.textContent = 'WHAT WOULD YOU INVESTIGATE FIRST?';
+    instruction.textContent = f.prompt || 'WHAT WOULD YOU INVESTIGATE FIRST?';
     instruction.style.marginBottom = '10px';
 
     $('modalInteraction').appendChild(instruction);
+
+    // Result line shown after a choice (redesigned rooms only)
+    const feedback = document.createElement('p');
+    feedback.className = 'choice-feedback';
+    feedback.hidden = true;
 
     // Create mystery choices
     f.choices.forEach((choice, choiceIndex) => {
@@ -423,8 +701,26 @@ function openCase(i) {
 
         b.addEventListener('click', () => {
             document.querySelectorAll('#modalInteraction button')
-                .forEach(n => n.classList.remove('chosen'));
+                .forEach(n => n.classList.remove('chosen', 'wrong'));
 
+            // Redesigned rooms: show the result, unlock the file only when correct
+                    if (f.feedback) {
+                const right = choiceIndex === f.correct;
+
+                b.classList.add(right ? 'chosen' : 'wrong');
+                feedback.textContent = (right ? '✓ ' : '✕ ') + f.feedback[choiceIndex];
+                feedback.classList.toggle('is-right', right);
+                feedback.hidden = false;
+
+                if (f.scan) updateScan(f, f.thresholds[choiceIndex]);
+                if (f.event) updateEvent(f, choiceIndex);
+                if (f.chat) updateChat(f, choiceIndex);
+
+                $('revealBtn').hidden = !right;
+                return;
+            }
+
+            // Rooms not redesigned yet: original behaviour
             b.classList.add('chosen');
 
             toast(
@@ -439,9 +735,26 @@ function openCase(i) {
         $('modalInteraction').appendChild(b);
     });
 
-    // Reset technical reveal
+    $('modalInteraction').appendChild(feedback);
+
+    // Technical file: four sections for redesigned rooms
+    if (f.reveal) {
+        $('modalSolution').innerHTML = [
+            ['WHAT I BUILT', f.reveal.built],
+            ['WHAT WENT WRONG', f.reveal.wrong],
+            ['HOW I FIXED IT', f.reveal.fixed],
+            ['WHAT I LEARNED', f.reveal.learned]
+        ].map(([h, t]) =>
+            `<span class="reveal-step"><strong>${h}</strong>${t}</span>`
+        ).join('');
+    }
+
+    $('modalDetail').hidden = !!f.reveal;
+
+    // Reset technical reveal (redesigned rooms wait for the right answer)
     $('modalReveal').hidden = true;
-    $('revealBtn').hidden = false;
+    $('revealBtn').hidden = !!f.feedback;
+
 
     // Display case modal
     $('caseModal').hidden = false;
@@ -524,6 +837,9 @@ function closeVerdict() {
    ========================================================= */
 
 $('verdictBtn').addEventListener('click', openVerdict);
+
+// Back to the corridor from Beyond the Case Files (progress is kept)
+$('returnCorridor').addEventListener('click', () => showScene('corridorPreview'));
 
 $('closeVerdict').addEventListener('click', closeVerdict);
 
@@ -652,11 +968,11 @@ document.addEventListener('keydown', e => {
 
         // HUD
         if (next === -1) {
-            statusEl.textContent = '◉ ALL THREE ROOMS OPENED — THE ARCHIVE IS UNSEALED';
-            actionBtn.textContent = 'ENTER THE FULL ARCHIVE →';
+            statusEl.textContent = 'ALL THREE INVESTIGATIONS RECOVERED. BUT THE CASE ISN\'T CLOSED YET.'
+            actionBtn.textContent = 'BEYOND THE CASE FILES →';
             actionBtn.classList.add('ready');
         } else {
-            statusEl.textContent = `◉ ROOM ${pad(next)} IS UNSEALED — ${roomNames[next]}`;
+            statusEl.textContent = `◉ ROOM ${pad(next)} IS UNSEALED · ${roomNames[next]}`;
             actionBtn.textContent = `OPEN DOOR ${pad(next)} →`;
             actionBtn.classList.remove('ready');
         }
@@ -676,7 +992,7 @@ document.addEventListener('keydown', e => {
             void door.offsetWidth;                 // restart animation
             door.classList.add('shake');
 
-            toast(`ROOM ${pad(room)} IS SEALED // EXAMINE ${roomNames[nextRoom()]} FIRST`);
+            toast(`ROOM ${pad(room)} IS SEALED. EXAMINE ${roomNames[nextRoom()]} FIRST.
             return;
         }
 
@@ -758,9 +1074,11 @@ document.addEventListener('keydown', e => {
         if (solved(room)) {
             const next = nextRoom();
 
-            toast(next === -1
-                ? 'ALL THREE ROOMS OPENED // THE ARCHIVE IS UNSEALED'
-                : `ROOM ${pad(room)} RECOVERED // ROOM ${pad(next)} UNSEALED`);
+            // Show unlock notifications only for Rooms 01 and 02.
+            // Room 03's completion message will appear in the corridor.
+            if (next !== -1) {
+                toast(`ROOM ${pad(room)} RECOVERED. ROOM ${pad(next)} UNSEALED`);
+            }
         } else {
     // Room 03 is the final mystery, so don't mention another door.
     toast(
